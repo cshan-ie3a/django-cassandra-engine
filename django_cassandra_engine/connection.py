@@ -5,7 +5,8 @@ from .compat import (
     Session,
     connection,
 )
-
+from cassandra.cluster import NoHostAvailable
+import time
 
 class Cursor(object):
     def __init__(self, connection):
@@ -84,14 +85,20 @@ class CassandraConnection(object):
 
             for option, value in self.session_options.items():
                 setattr(Session, option, value)
-
-            connection.register_connection(
-                self.alias,
-                hosts=self.hosts,
-                default=self.default,
-                cluster_options=self.cluster_options,
-                **self.connection_options
-            )
+            
+            while True:
+                try:
+                    connection.register_connection(
+                        self.alias,
+                        hosts=self.hosts,
+                        default=self.default,
+                        cluster_options=self.cluster_options,
+                        **self.connection_options
+                    )
+                    break
+                except NoHostAvailable:
+                    print("Retrying to connect in 10 seconds")
+                    time.sleep(10)
 
     @property
     def cluster(self):
