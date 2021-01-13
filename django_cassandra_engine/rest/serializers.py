@@ -20,6 +20,19 @@ from rest_framework.utils.field_mapping import (
 from ..compat import columns
 
 
+import base64
+
+class BytesField(serializers.Field):
+    """
+        Serializes Bytes, Straight Up
+    """
+    def to_representation(self, value):
+        return base64.b64encode(value)
+
+    def to_internal_value(self, data):
+        return base64.b64decode(data)
+
+
 class DjangoCassandraModelSerializer(serializers.ModelSerializer):
     serializer_field_mapping = {
         columns.Text: serializers.CharField,
@@ -37,6 +50,8 @@ class DjangoCassandraModelSerializer(serializers.ModelSerializer):
         columns.Boolean: serializers.BooleanField,
         columns.DateTime: serializers.DateTimeField,
         columns.List: serializers.ListField,
+        columns.Map: serializers.DictField,
+        columns.Blob: BytesField
     }
 
     def get_field_kwargs(self, field_name, model_field):
