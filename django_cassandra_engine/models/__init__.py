@@ -790,7 +790,7 @@ class DjangoCassandraModel(
     __abstract__ = True
     __table_name__ = None
     __table_name_case_sensitive__ = False
-    __keyspace__ = None
+    #__keyspace__ = None
     __options__ = None
 
     __discriminator_value__ = None
